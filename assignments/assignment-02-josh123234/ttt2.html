@@ -8,7 +8,11 @@
         body,html {
             font-family: Roboto;
         }
-        .wrapper {
+        .outer-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .inner-wrapper {
             display: flex;
             margin: 5px;
             justify-content: center;
@@ -40,8 +44,8 @@
 <body>
 <div class="game-signal">Turn: </div>
 <div class="game-signal">Win Condition: </div>
-<div>
-    <div class="wrapper">
+<div class="outer-wrapper">
+    <div class="inner-wrapper">
         <script>
             const NUM_SQUARES = 9;
             for (i=0; i<NUM_SQUARES; i++)
