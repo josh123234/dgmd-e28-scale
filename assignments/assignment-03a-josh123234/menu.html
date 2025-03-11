@@ -1,0 +1,108 @@
+<html>
+<title>Online Ordering System</title>
+<header>
+    <style>
+        body,html {
+            font-family: Arial;
+        }
+        h1 {
+            font-size: 2em;
+        }
+        .padded-area {
+            padding: 20px;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            document.getElementById("add-cart-button").onclick = addToCart;
+            document.getElementById("checkout").onclick = checkout;
+        }
+
+        function showMe() {
+            return this.name + ": " + this.price;
+        }
+
+        function totalMe(quantity) {
+            return this.price*quantity
+        }
+
+        function foodItem(name, price) {
+            this.name = name;
+            this.price = price;
+            this.show = showMe;
+            this.total = totalMe;
+        }
+
+        menu = [new foodItem("hotdog", 4.00), new foodItem("fries", 3.00), new foodItem("soda", 1.50), new foodItem("sauerkraut", 1.00)]
+        console.log("menu: ", menu)
+
+        cart = [];
+
+        cart["hotdog"] = 0;
+        cart["fries"] = 0;
+        cart["soda"] = 0;
+        cart["sauerkraut"] = 0;
+
+        console.log("cart: ", cart);
+
+        menuValidation = menu.map(item => item.name)
+
+        console.log("menuValidation ", menuValidation);
+
+        function isValid(itemToAdd)
+        {
+            index = menuValidation.indexOf(itemToAdd)
+            console.log("index: ", index);
+            return index >= 0
+        }
+        function addToCart() {
+            const inputItem = document.getElementById("add-cart-input").value.toLowerCase();
+            if (isValid(inputItem)) {
+                cart[inputItem]++
+                console.log(inputItem)
+                console.log("updated cart: ", cart);
+                document.getElementById(inputItem).innerHTML = inputItem + ": " + cart[inputItem];
+            }
+        }
+        function checkout() {
+            total = 0;
+            menu.forEach(function(item) {
+                console.log("item name is: ", item.name);
+                console.log("item price is: ", item.price);
+                console.log("quantity is: ", cart[item.name]);
+                console.log("total for item is: ", item.total(cart[item.name]));
+                total = total + item.total(cart[item.name]);
+                console.log("grant total is now: ", total);
+            })
+            alert("Grand Total: $" + total)
+            console.log("grant total is now: ", total);
+        }
+    </script>
+</header>
+<body>
+<div class="padded-area">
+    <h1>Menu</h1>
+    <script>
+        menu.forEach(function(item){
+            document.write("<li>" + item.show());
+        })
+    </script>
+</div>
+<div>
+    <input type="text" id="add-cart-input">
+    <button id="add-cart-button">Add to Cart</button>
+</div>
+<div class="padded-area">
+    <button id="checkout">Checkout</button>
+</div>
+<div class="padded-area">
+    <h1>Cart</h1>
+    <script>
+        menu.forEach(function(item){
+            document.write("<div id=" + item.name +"></div>");
+        })
+    </script>
+    <div id="cart"></div>
+</div>
+</body>
+</html>
