@@ -1,0 +1,186 @@
+<html>
+<title>Wordle</title>
+<header>
+    <style>
+        body,html {
+            font-family: Roboto;
+        }
+        .outer-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .letter-button {
+            margin: 3px;
+        }
+    </style>
+
+    <script>
+        var rawAlphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+        var secretWord = "";
+        var secretWordArray = [];
+        var currentGuess = [];
+        var nextGuessNumber = 0;
+        var gameGuesses = [];
+        var alphabetObject = {};
+
+        window.onload = function() {
+            getSecretWord();
+            initializeAlphabet();
+            rawAlphabet.forEach(function(l) {
+                document.getElementById(l).onclick = addToCurrentGuess;
+            })
+            document.getElementById("submit-guess").onclick = submitGuess;
+            document.getElementById("restart-game").onclick = restartGame;
+
+        }
+
+
+        function restartGame() {
+            initializeAlphabet();
+            getSecretWord();
+
+            currentGuess = [];
+            document.getElementById("current-guess").innerHTML = currentGuess;
+
+            nextGuessNumber = 0;
+
+            gameGuesses = [];
+            writeGuesses()
+        }
+
+        function initializeAlphabet() {
+            rawAlphabet.forEach(function(l) {
+                alphabetObject[l] = "notUsed";
+            })
+            writeAlphabet();
+        }
+
+        function addToCurrentGuess() {
+            if (currentGuess.length < 5) {
+            currentGuess.push(this.id)
+            } else {
+                alert("Guess already has 5 letters. Please submit.")
+            }
+            document.getElementById("current-guess").innerHTML = currentGuess;
+        }
+
+        function submitGuess() {
+            if (currentGuess.length == 5) {
+                let num = nextGuessNumber;
+                myGuess = new Guess(currentGuess, num);
+                gameGuesses.push(myGuess);
+                myGuess.updateAlphabet();
+
+                nextGuessNumber++;
+                currentGuess = [];
+
+                writeGuesses();
+
+                // document.getElementById("row-"+nextGuessNumber).innerHTML = myGuess.reduceMe();
+            }
+            if (myGuess.reduceMe() == secretWord) {
+                alert("YOU WON!");
+            }
+        }
+        function writeGuesses(){
+            for (i=0; i<7; i++) {
+                document.getElementById("row-"+i).innerHTML = "";
+            }
+            for (i=0; i<gameGuesses.length; i++) {
+                document.getElementById("row-"+i).innerHTML = gameGuesses[i].reduceMe();
+            }
+        }
+
+        class Guess {
+            constructor (word, guessNumber) {
+                this.word = word; // e.g. [a,b,c,d,e]
+                this.guessNumber = guessNumber;
+            }
+            show() {
+                return "word: " + this.word + " | guessNumber: " + this.guessNumber;
+            }
+            reduceMe() {
+                let reducedWord = this.word.reduce(reducerFunction);
+                return reducedWord;
+            }
+            updateAlphabet() {
+                console.log(secretWordArray);
+                this.word.forEach(function(l) {
+                    console.log(alphabetObject[l])
+                    console.log(secretWordArray[l])
+                    if (alphabetObject[l] == secretWordArray[l]){
+                        alert("matching letter");
+                    } else {
+                    alphabetObject[l] = "used"
+                    }
+                })
+                writeAlphabet();
+            }
+        }
+        function reducerFunction(total, letter) {
+            return total + letter;
+        }
+        function writeAlphabet() {
+            document.getElementById("used-letters").innerHTML = JSON.stringify(alphabetObject);
+        }
+    </script>
+
+    <script>
+        function getSecretWord() {
+            fetch("https://random-word-api.herokuapp.com/word?length=5")
+                .then (res => res.text())
+                .then (response =>
+                {
+                    respObj = JSON.parse(response);
+                    word = respObj
+                    document.getElementById("secret-word").innerHTML = word;
+                    secretWord = word;
+                    secretWordArray = JSON.stringify(secretWord[0]).split("");
+                })
+                .catch (error => console.log(error))
+        }
+    </script>
+
+</header>
+<body>
+<h1>Guesses</h1>
+<br>
+<span id="row-0"></span>
+<br>
+<span id="row-1"></span>
+<br>
+<span id="row-2"></span>
+<br>
+<span id="row-3"></span>
+<br>
+<span id="row-4"></span>
+<br>
+<span id="row-5"></span>
+<br>
+<span id="row-6"></span>
+
+<h1>Current Guess</h1>
+<div><p>Current Guess: <span id="current-guess"></span></p></div>
+
+<h1>Secret Word</h1>
+<div><p>Secret Word: <span id="secret-word"></span></p></div>
+
+<h1>Used Letters (including status of all letters)</h1>
+<div><p>Current Guess: <span id="used-letters"></span></p></div>
+
+
+
+<div class="outer-wrapper">
+    <script>
+        rawAlphabet.forEach(function(l) {
+            id = l;
+            document.write( "<button class='letter-button' id='" + id + "'>" + l + "</button>" );
+        })
+    </script>
+</div>
+<button id="submit-guess">Submit Guess</button>
+<button id="restart-game">Restart Game</button>
+
+</body>
+</html>
+</html>
