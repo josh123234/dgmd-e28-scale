@@ -1,0 +1,160 @@
+<html>
+<header>
+    <style>
+        body,html {
+            font-family: Roboto;
+        }
+        .outer-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .inner-wrapper {
+            display: flex;
+            margin: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-width: 660px;
+        }
+        .square {
+            position: relative;
+            box-sizing: border-box;
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999;
+            border-left: 1px solid #999;
+            border-right: 1px solid #999;
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            text-align: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        .square:hover {
+            background-color: #1EA3EB;
+        }
+        .game-signal {
+            border: 1px solid #999;
+        }
+    </style>
+    <script>
+        var gameGuesses = [];
+        var nextGuessNumber = 0;
+
+        window.onload= function() {
+            restartGame();
+            let row = ''
+            for (r=1; r<7; r++) {
+                for (c=1; c<7; c++) {
+                    document.getElementById("[" + c +","+ r +"]").onclick = submitGuess;
+                }
+            }
+            document.getElementById("restart-game").onclick = restartGame;
+
+        }
+        function restartGame() {
+            gameGuesses = [];
+            nextGuessNumber = 0;
+            document.getElementById("guess-number").innerHTML = nextGuessNumber;
+        }
+
+        function drawCol(colNum, length) {
+            console.log("drawing row: ", colNum);
+            const col = colNum;
+            const NUM_SQUARES = length+1;
+            for (i=1; i<NUM_SQUARES; i++) {
+                id = "["+col+","+ i +"]";
+                document.write( "<div class='square' id='" + id + "'></div>" );
+            }
+        }
+
+        requestData(); // This doesn't seem to be working, so I hardcoded the board below :(
+        function requestData() {
+                var req = new XMLHttpRequest();
+                if (!req) {
+                    alert("Unable to create HTTPRequest object"); return;
+                }
+                req.open("GET", "/server.js", true);
+                console.log(JSON.parse.req);
+
+            // fetch("/battleship.json")
+            //     .then(res => res.text())
+            //     .then(data => console.log(data))
+            //     .catch(error => console.log(error))
+        }
+        var board = {
+            'ships':
+                [
+                    {
+                        'name': 'ship1',
+                        'orientation': 'vertical',
+                        'size': 4,
+                        'coords':[2,3]
+                    },
+                    {
+                        'name':'ship2',
+                        'orientation': 'horizontal',
+                        'size': 3,
+                        'coords':[3,3]
+                    },
+                    {
+                        'name':'ship3',
+                        'orientation': 'vertical',
+                        'size': 2,
+                        'coords':[6,5]
+                    }
+
+                ]
+        }
+
+        function submitGuess() {
+            let coordinates = this.id;
+            console.log(this.id)
+            myGuess = new Guess(coordinates);
+            myGuess.checkBoard();
+            console.log(myGuess)
+            gameGuesses.push(myGuess);
+            console.log(myGuess.showMe());
+            console.log(gameGuesses);
+            nextGuessNumber++;
+            document.getElementById("guess-number").innerHTML = nextGuessNumber;
+
+        }
+
+        class Guess {
+            constructor (coordinates, status) {
+                this.coordinates = coordinates; // e.g. [2,3]
+                this.status = status; // e.g. hit, miss
+            }
+            showMe() {
+                return "coordinates: " + this.coordinates + " | status: " + this.status;
+            }
+            checkBoard() {
+                for (i=0; i<3; i++) {
+                    if (this.coordinates == board.ships[i].coords){
+                        this.status = "HIT";
+                    } else {
+                        this.status = "MISS"
+                    }
+                }
+                alert(this.status);
+                // This doesn't seem to be registering hits. Probably my ID is a different format than the JSON value, so they aren't matching. Also, I should expand upon the json coordinates to check the full boat.
+            }
+        }
+    </script>
+</header>
+<body>
+<div class="game-signal">Guesses Used: <span id="guess-number"></span></div>
+<div class="game-signal">Win Condition: <span id="my-win-condition"></div>
+<div class="outer-wrapper">
+    <div class="inner-wrapper">
+        <div><script>drawCol(1,6)</script></div>
+        <div><script>drawCol(2,6)</script></div>
+        <div><script>drawCol(3,6)</script></div>
+        <div><script>drawCol(4,6)</script></div>
+        <div><script>drawCol(5,6)</script></div>
+        <div><script>drawCol(6,6)</script></div>
+    </div>
+</div>
+<button id="restart-game">Restart Game</button>
+</body>
+</html>
