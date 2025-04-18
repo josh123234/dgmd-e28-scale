@@ -1,0 +1,112 @@
+<html>
+<header>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <title>Wordle Redux</title>
+    <style>
+        body,html {
+            font-family: Roboto;
+        }
+        .outer-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .inner-wrapper {
+            display: flex;
+            margin: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 550px;
+        }
+        .square {
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999;
+            border-left: 1px solid #999;
+            border-right: 1px solid #999;
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            text-align: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+    </style>
+</header>
+
+<body>
+<div id="myapp"></div>
+
+<script>
+
+    // Guesses and board
+
+    function Guess(word, guessNumber) {
+        this.word = word; // e.g. [a,b,c,d,e]
+        this.guessNumber = guessNumber;
+
+        this.updateAlphabet = function() {
+            this.word.forEach(function(l, i) {
+                if (l == secretWordArray[i]){
+                    alphabetObject[l] = "matched"
+                } else {
+                    alphabetObject[l] = "used"
+                }
+            })
+        }
+    }
+
+    var boardArray = [
+        new Guess(["m","i","g","h","t"], 0),
+        new Guess(["f","l","o","o","d"], 1),
+        new Guess(["s","t","r","a","y"], 2),
+        new Guess(["","","","",""], 3),
+        new Guess(["","","","",""], 4),
+        new Guess(["","","","",""], 5)
+    ]
+
+    function drawBoard(props) {
+        return React.createElement("div", null,
+            React.createElement("div", {className: "outer-wrapper"},
+                React.createElement("div", {className: "inner-wrapper"},
+                    boardArray.map((arrayItem, i) => {
+                        arrayItem.updateAlphabet()
+                        return React.createElement("div", {key: i},
+                            arrayItem.word.map((l, n) => {
+                                return React.createElement("div", {className: "square", id: "[" + n + "," + arrayItem.guessNumber + "]", key: n}, l)
+                            })
+                        )
+
+                    })
+                )
+            ),
+            React.createElement("div", {className: 'outer-wrapper'},
+                rawAlphabet.map((keyLetter, z) => {
+                    return React.createElement("button", {className: 'letter-button', id: keyLetter, key: z}, keyLetter + "-" + alphabetObject[keyLetter]);
+                })
+            )
+        )
+    }
+
+    // On-screen keyboard
+
+    var rawAlphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+    var secretWordArray = ["m","o","o","d","y"];
+    var alphabetObject = {};
+
+    function initializeAlphabet() {
+        rawAlphabet.forEach(function(l) {
+            alphabetObject[l] = "notUsed";
+        })
+    }
+
+    // Get it going
+
+    initializeAlphabet()
+    var board = React.createElement(drawBoard, null, null)
+    ReactDOM.render(board, myapp);
+</script>
+</body>
+</html>
