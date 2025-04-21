@@ -1,0 +1,292 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <title>Wordle Redux 2</title>
+    <style type="text/css">
+        body,html {
+            font-family: Roboto;
+        }
+        .outer-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .inner-wrapper {
+            display: flex;
+            margin: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 550px;
+        }
+        .square {
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999;
+            border-left: 1px solid #999;
+            border-right: 1px solid #999;
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            text-align: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        .used {
+            background-color: palevioletred;
+        }
+        .matched {
+            background-color: lightseagreen;
+        }
+        .notUsed {
+            background-color: lightgrey;
+        }
+
+    </style>
+</head>
+<body>
+<h1>Wordle Redux 2 Using JSX</h1>
+<p>Below is the board and on screen keyboard. Several gusses have been hard-coded into the board. Letters that match the secret word are highlighted in green, while incorrect guesses are red.</p>
+<div id="myapp"></div>
+
+<script type='text/babel'>
+
+    // Get our global arrays ready and initalize the alphabet
+    var rawAlphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+    var alphabetArray = [];
+    var secretWordArray = ["m", "o", "o", "d", "y"];
+    var hardcodeGuesses = [
+        new Guess(["m", "i", "g", "h", "t"], 0),
+        new Guess(["f", "l", "o", "o", "d"], 1),
+        new Guess(["s", "t", "r", "a", "y"], 2),
+        new Guess(["", "", "", "", ""], 3),
+        new Guess(["", "", "", "", ""], 4),
+        new Guess(["", "", "", "", ""], 5)
+    ]
+
+    function Guess(word, guessNumber)
+    {
+        this.word = word; // e.g. [a,b,c,d,e]
+        this.guessNumber = guessNumber;
+
+        this.updateAlphabet = function ()
+        {
+            this.word.forEach(function (l, i)
+            {
+                let thisIndex = rawAlphabet.indexOf(l)
+                if (l == secretWordArray[i])
+                {
+                    alphabetArray[thisIndex].status = "matched"
+                } else if (l == "")
+                {
+                    // to ensure board can initialize with blank "guesses"
+                } else
+                {
+                    alphabetArray[thisIndex].status = "used"
+                }
+            })
+        }
+    }
+    function checkLetterStatus(l)
+    {
+        let thisIndex = rawAlphabet.indexOf(l)
+        return alphabetArray[thisIndex].status
+    }
+
+    function Letter(l, status)
+    {
+        this.character = l;
+        this.status = status;
+    }
+
+    function initializeAlphabet()
+    {
+        rawAlphabet.forEach(function (l)
+        {
+            alphabetArray.push(new Letter(l, "notUsed"))
+        })
+    }
+    initializeAlphabet()
+
+
+    // Functions needed to create the interface
+
+    function Keyboard({alphabet})
+    {
+        return <div className="outer-wrapper">
+            {
+                alphabet.map((letterObject, z) =>
+                    <button className={"letter-button " + letterObject.status} id={letterObject.character} key={z}>
+                        {
+                            letterObject.character + "-" + letterObject.status
+                        }
+                    </button>
+                )
+            }
+        </div>
+    }
+
+    function Gameboard({startingGuesses})
+    {
+        return <div>
+            {
+              startingGuesses.map((arrayItem, i) =>
+                {
+                    arrayItem.updateAlphabet()
+                    return <div key={i}>
+                        {
+                            arrayItem.word.map(function(l, n) {
+                                let letterStatus = "notUsed";
+                                if (l !== "") {
+                                    letterStatus = checkLetterStatus(l);
+                                }
+                                return <div className={"square " + letterStatus} id={"[" + n + "," + arrayItem.guessNumber + "]"} key={n}>
+                                    {l}
+                                </div>
+                                }
+                            )
+                        }
+                    </div>
+                }
+              )
+            }
+        </div>
+    }
+
+    function GameboardWrapper({startingGuesses})
+    {
+        return <div className="outer-wrapper">
+            {
+                <div className="inner-wrapper">
+                    {<Gameboard startingGuesses={startingGuesses}></Gameboard>}
+                </div>
+            }
+        </div>
+    }
+
+    function Interface({alphabet, startingGuesses})
+    {
+        return <div><GameboardWrapper startingGuesses={startingGuesses}></GameboardWrapper><Keyboard alphabet={alphabet}></Keyboard></div>
+    }
+
+    // Generate the interface
+
+    var myInterface = <Interface alphabet={alphabetArray} startingGuesses={hardcodeGuesses}></Interface>
+    ReactDOM.render(myInterface, myapp);
+</script>
+
+<!--The following scrip represents non-JSX that mirrors the JSX script (except without color coding by letter status). It is here in comments merely for comparison with JSX formats.-->
+<div>
+    <!--<script>
+
+       // Get our global arrays ready and initalize the alphabet
+       var rawAlphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+       var alphabetArray = [];
+       var secretWordArray = ["m", "o", "o", "d", "y"];
+       var hardcodeGuesses = [
+           new Guess(["m", "i", "g", "h", "t"], 0),
+           new Guess(["f", "l", "o", "o", "d"], 1),
+           new Guess(["s", "t", "r", "a", "y"], 2),
+           new Guess(["", "", "", "", ""], 3),
+           new Guess(["", "", "", "", ""], 4),
+           new Guess(["", "", "", "", ""], 5)
+       ]
+
+       function Guess(word, guessNumber)
+       {
+           this.word = word; // e.g. [a,b,c,d,e]
+           this.guessNumber = guessNumber;
+
+           this.updateAlphabet = function ()
+           {
+               this.word.forEach(function (l, i)
+               {
+                   let thisIndex = rawAlphabet.indexOf(l)
+                   if (l == secretWordArray[i])
+                   {
+                       alphabetArray[thisIndex].status = "matched"
+                   } else if (l == "")
+                   {
+                       // to ensure board can initialize with blank "guesses"
+                   } else
+                   {
+                       alphabetArray[thisIndex].status = "used"
+                   }
+               })
+           }
+       }
+
+       function Letter(l, status)
+       {
+           this.character = l;
+           this.status = status;
+       }
+
+       function initializeAlphabet()
+       {
+           rawAlphabet.forEach(function (l)
+           {
+               alphabetArray.push(new Letter(l, "notUsed"))
+           })
+       }
+       initializeAlphabet()
+
+
+       // Functions needed to create the interface
+
+       function Keyboard({alphabet})
+       {
+           return React.createElement("div", {className: 'outer-wrapper'},
+               alphabet.map((letterObject, z) =>
+               {
+                   return React.createElement("button", {className: 'letter-button', id: letterObject.character, key: z}, letterObject.character + "-" + letterObject.status);
+               })
+           )
+       }
+
+       function Gameboard({startingGuesses})
+       {
+           return React.createElement("div", null,
+               startingGuesses.map((arrayItem, i) =>
+               {
+                   arrayItem.updateAlphabet()
+                   return React.createElement("div", {key: i},
+                       arrayItem.word.map((l, n) =>
+                       {
+                           return React.createElement("div", {className: "square", id: "[" + n + "," + arrayItem.guessNumber + "]", key: n}, l)
+                       })
+                   )
+               })
+           )
+       }
+
+       function GameboardWrapper({startingGuesses})
+       {
+           return React.createElement("div", {className: "outer-wrapper"},
+               React.createElement("div", {className: "inner-wrapper"},
+                   React.createElement(Gameboard, {startingGuesses: startingGuesses}, null)
+               )
+           )
+       }
+
+       function Interface({alphabet, startingGuesses}) // desconstruction to pull alphabet out of props
+       {
+           return React.createElement("div", null,
+               React.createElement(GameboardWrapper, {startingGuesses: startingGuesses}, null),
+               React.createElement(Keyboard, {alphabet: alphabet}, null)
+           )
+       }
+
+       // Generate the interface
+       var myInterface = React.createElement(Interface, {alphabet: alphabetArray, startingGuesses: hardcodeGuesses}, null)
+       ReactDOM.render(myInterface, myapp);
+    </script>-->
+</div>
+
+</body>
+</html>
