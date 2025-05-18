@@ -6,7 +6,7 @@ import {MyRouteApp} from "./routes"
 function App() {
 
     return (
-        <Router>
+        <Router basename="/dgmd-e28-scale/assignments/final-project-josh123234/budget-app">
             <Nav />
             <MyRouteApp />
         </Router>
